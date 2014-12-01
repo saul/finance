@@ -2,7 +2,8 @@
 {% load currency %}
 
 {% block description %}
-	Regular transfer {% if transaction.amount < 0 %}to{% else %}from{% endif %} <var>{{ transaction.sortcode }}</var> <var>{{ transaction.account_number }}</var>
+	Regular transfer {% if transaction.amount < 0 %}to{% else %}from{% endif %}
+	<var>{{ transaction.sortcode }}</var> <var>{{ transaction.account_number }}</var>
 {% endblock %}
 
 {% block extra %}

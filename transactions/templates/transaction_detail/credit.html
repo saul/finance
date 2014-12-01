@@ -2,7 +2,9 @@
 {% load currency %}
 
 {% block description %}
-	Credit from <a href="{{ transaction.sender.get_absolute_url }}">{{ transaction.sender }}</a>{% if transaction.ref %}, reference <var>{{ transaction.ref }}</var>{% endif %}
+	Credit from
+	<a href="{{ transaction.sender.get_absolute_url }}">{{ transaction.sender }}</a>
+	{% if transaction.ref %}, reference <var>{{ transaction.ref }}</var>{% endif %}
 {% endblock %}
 
 {% block extra %}

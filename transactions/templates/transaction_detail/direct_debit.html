@@ -2,7 +2,9 @@
 {% load currency %}
 
 {% block description %}
-	Direct debit to <a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a></var>, reference <var>{{ transaction.ref }}
+	Direct debit to
+	<a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a>,
+	reference <var>{{ transaction.ref }}</var>
 {% endblock %}
 
 {% block extra %}

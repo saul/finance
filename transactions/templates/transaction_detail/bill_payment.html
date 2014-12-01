@@ -2,7 +2,9 @@
 {% load currency %}
 
 {% block description %}
-	Bill payment {% if transaction.amount < 0 %}to{% else %}from{% endif %} <a href="{{ transaction.counterparty.get_absolute_url }}">{{ transaction.counterparty }}</a>, reference <var>{{ transaction.ref }}</var>
+	Bill payment {% if transaction.amount < 0 %}to{% else %}from{% endif %}
+	<a href="{{ transaction.counterparty.get_absolute_url }}">{{ transaction.counterparty }}</a>, reference
+	<var>{{ transaction.ref }}</var>
 {% endblock %}
 
 {% block extra %}
