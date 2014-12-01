@@ -190,7 +190,7 @@ module.exports = function (grunt) {
           if (os.platform() == 'win32') {
             return 'call env/Scripts/activate.bat && python manage.py collectstatic --noinput';
           } else {
-            return '. macenv/bin/activate && python manage.py collectstatic --noinput';
+            return '. env/bin/activate && python manage.py collectstatic --noinput';
           }
         },
         stdout: true
