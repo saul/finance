@@ -1,0 +1,29 @@
+{
+  "name": "finance",
+  "description": "Django financial tracking and budgeting app",
+  "version": "0.1.0",
+  "homepage": "http://github.com/saul/finance",
+  "author": "Saul Rennison <saul.rennison@gmail.com>",
+  "devDependencies": {
+    "btoa": "~1.1.2",
+    "glob": "~4.0.6",
+    "grunt": "~0.4.5",
+    "grunt-autoprefixer": "~1.0.1",
+    "grunt-banner": "~0.2.3",
+    "grunt-concat-sourcemap": "~0.4.3",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-concat": "~0.5.0",
+    "grunt-contrib-connect": "~0.8.0",
+    "grunt-contrib-copy": "~0.7.0",
+    "grunt-contrib-csslint": "~0.3.1",
+    "grunt-contrib-cssmin": "~0.10.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-less": "~0.12.0",
+    "grunt-contrib-uglify": "~0.6.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-csscomb": "~3.0.0",
+    "grunt-exec": "~0.4.6",
+    "grunt-jscs": "~0.8.1",
+    "load-grunt-tasks": "~1.0.0"
+  }
+}

@@ -1,0 +1,13 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Card payment to <a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a>
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Requested amount</td>
+		<td>{{ transaction.requested_amount|format_currency }} {{ transaction.currency }}</td>
+	</tr>
+{% endblock %}

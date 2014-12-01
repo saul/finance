@@ -1,0 +1,13 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Regular transfer {% if transaction.amount < 0 %}to{% else %}from{% endif %} <var>{{ transaction.sortcode }}</var> <var>{{ transaction.account_number }}</var>
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Mandate</td>
+		<td>{{ transaction.mandate }}</td>
+	</tr>
+{% endblock %}

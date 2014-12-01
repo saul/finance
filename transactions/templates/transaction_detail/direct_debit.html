@@ -1,0 +1,13 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Direct debit to <a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a></var>, reference <var>{{ transaction.ref }}
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Mandate</td>
+		<td>{{ transaction.mandate }}</td>
+	</tr>
+{% endblock %}

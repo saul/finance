@@ -1,0 +1,38 @@
+{% load currency %}
+
+<td class="date">
+	{{ transaction.date|date:"D d/m/y" }}
+</td>
+
+<td class="expand">
+	{% block icon %}
+	<a href="#">
+		<span class="glyphicon glyphicon-collapse-down"></span>
+	</a>
+	{% endblock %}
+</td>
+
+<td class="description">
+	<div>
+		{% block description %}{% endblock %}
+	</div>
+
+	<div class="extra">
+		{% block extra.outer %}
+			<table class="transaction-extra-table">
+				<tbody>
+				{% block extra %}{% endblock extra %}
+
+				<tr>
+					<td>Date cleared</td>
+					<td>{{ transaction.cleared_date|date:"d/m/Y" }}</td>
+				</tr>
+				</tbody>
+			</table>
+		{% endblock extra.outer %}
+	</div>
+</td>
+
+<td class="amount {% if transaction.amount < 0 %}danger{% else %}success{% endif %}">
+	{{ transaction.amount|format_currency }}
+</td>

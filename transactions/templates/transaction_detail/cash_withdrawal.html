@@ -1,0 +1,17 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Cash withdrawal at <var>{{ transaction.atm }}</var>
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Area</td>
+		<td>{{ transaction.area }}</td>
+	</tr>
+	<tr>
+		<td>Requested amount</td>
+		<td>{{ transaction.requested_amount|format_currency }} {{ transaction.currency }}</td>
+	</tr>
+{% endblock %}

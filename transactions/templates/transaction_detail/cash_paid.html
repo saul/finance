@@ -1,0 +1,6 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Cash paid in at <var>{{ transaction.branch }}</var>
+{% endblock %}

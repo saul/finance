@@ -1,0 +1,13 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Credit from <a href="{{ transaction.sender.get_absolute_url }}">{{ transaction.sender }}</a>{% if transaction.ref %}, reference <var>{{ transaction.ref }}</var>{% endif %}
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Type</td>
+		<td>{{ transaction.get_type_display|capfirst }}</td>
+	</tr>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Interest paid
+{% endblock %}
+
+{% block extra %}
+	<tr>
+		<td>Tax</td>
+		<td>{{ transaction.tax|format_currency }}</td>
+	</tr>
+{% endblock %}

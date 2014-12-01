@@ -1,0 +1,6 @@
+{% extends "transaction_row_base.html" %}
+{% load currency %}
+
+{% block description %}
+	Transfer from <var>{{ transaction.counterparty }}</var>
+{% endblock %}
