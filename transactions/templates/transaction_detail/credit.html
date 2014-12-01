@@ -3,7 +3,7 @@
 
 {% block description %}
 	Credit from
-	<a href="{{ transaction.sender.get_absolute_url }}">{{ transaction.sender }}</a>
+	{% include "counterparty_alias.html" with alias=transaction.sender only %}
 	{% if transaction.ref %}, reference <var>{{ transaction.ref }}</var>{% endif %}
 {% endblock %}
 

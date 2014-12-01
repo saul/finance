@@ -1,17 +1,4 @@
-import decimal
 from datetime import datetime
-
-
-def parse_currency(amount):
-    amount = amount.replace(',', '').replace('£', '')
-
-    if ' ' in amount:
-        if not amount.endswith(' GBP'):
-            raise ValueError('unexpected currency (%s)' % amount)
-
-        amount = amount[:-4]
-
-    return decimal.Decimal(amount)
 
 
 class BaseImporter:

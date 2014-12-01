@@ -3,7 +3,7 @@
 
 {% block description %}
 	Direct debit to
-	<a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a>,
+	{% include "counterparty_alias.html" with alias=transaction.recipient only %},
 	reference <var>{{ transaction.ref }}</var>
 {% endblock %}
 

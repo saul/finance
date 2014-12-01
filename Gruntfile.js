@@ -76,9 +76,10 @@ module.exports = function (grunt) {
           'static_src/js/bs/scrollspy.js',
           'static_src/js/bs/tab.js',
           'static_src/js/bs/affix.js',
+          'static_src/js/common.js',
           'static_src/js/datavis.js',
           'static_src/js/navbar.js',
-          'static_src/js/transaction-table.js',
+          'static_src/js/transaction-table.js'
         ],
         dest: '<%= distDir %>/js/finance.js'
       }

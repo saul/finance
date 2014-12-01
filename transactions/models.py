@@ -1,6 +1,6 @@
 from django.db import models
 from polymorphic import PolymorphicModel
-from counterparty.models import CounterParty
+from counterparty.models import Alias
 
 
 class Category(models.Model):
@@ -52,7 +52,7 @@ class CashWithdrawalTransaction(Transaction):
 class BillPaymentTransaction(Transaction):
     ref = models.CharField(max_length=64)
     mandate = models.IntegerField(null=True)
-    counterparty = models.ForeignKey(CounterParty)
+    counterparty = models.ForeignKey(Alias)
 
     class Meta:
         verbose_name = 'bill payment'
@@ -77,7 +77,7 @@ class BillPaymentTransaction(Transaction):
 
 
 class CardPaymentTransaction(Transaction):
-    recipient = models.ForeignKey(CounterParty)
+    recipient = models.ForeignKey(Alias)
     requested_amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=6)
     rate = models.DecimalField(max_digits=6, decimal_places=2)
@@ -98,7 +98,7 @@ class CardPaymentTransaction(Transaction):
 
 
 class DirectDebitTransaction(Transaction):
-    recipient = models.ForeignKey(CounterParty)
+    recipient = models.ForeignKey(Alias)
     ref = models.CharField(max_length=64)
     mandate = models.IntegerField()
 
@@ -118,7 +118,7 @@ class DirectDebitTransaction(Transaction):
 
 
 class CreditTransaction(Transaction):
-    sender = models.ForeignKey(CounterParty)
+    sender = models.ForeignKey(Alias)
     ref = models.CharField(max_length=64)
 
     class CreditType:
@@ -220,7 +220,7 @@ class InterestTransaction(Transaction):
 
 
 class StandingOrderTransaction(Transaction):
-    recipient = models.ForeignKey(CounterParty)
+    recipient = models.ForeignKey(Alias)
     ref = models.CharField(max_length=64)
     mandate = models.IntegerField()
 

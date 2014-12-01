@@ -2,7 +2,7 @@
 {% load currency %}
 
 {% block description %}
-	Card payment to <a href="{{ transaction.recipient.get_absolute_url }}">{{ transaction.recipient }}</a>
+	Card payment to {% include "counterparty_alias.html" with alias=transaction.recipient only %}
 {% endblock %}
 
 {% block extra %}

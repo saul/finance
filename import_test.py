@@ -10,7 +10,7 @@ from django import db
 os.environ['DJANGO_SETTINGS_MODULE'] = 'finance.settings'
 django.setup()
 
-from statementimport.importer import parse_currency
+from statementimport.util import parse_currency
 from statementimport import santander
 
 

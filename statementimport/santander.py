@@ -2,7 +2,8 @@ import decimal
 import re
 
 from transactions.models import *
-from .importer import BaseImporter, BaseProcessor, parse_currency
+from .importer import BaseImporter, BaseProcessor
+from .util import parse_currency, get_or_create_alias
 
 
 class SantanderImporter(BaseImporter):
@@ -28,7 +29,7 @@ class BillPaymentProcessor(BaseProcessor):
 
     def clean_fields(self, fields):
         return {
-            'counterparty': CounterParty.objects.get_or_create_by_alias(fields['recipient'] or fields['sender'])[0],
+            'counterparty': get_or_create_alias(fields['recipient'] or fields['sender']),
             'ref': fields['ref'] or fields['sender_ref'],
             'mandate': fields['mandate'] or 0,
             'amount': fields['amount'],
@@ -45,7 +46,7 @@ class CardPaymentProcessor(BaseProcessor):
 
     def clean_fields(self, fields):
         return {
-            'recipient': CounterParty.objects.get_or_create_by_alias(fields['recipient'])[0],
+            'recipient': get_or_create_alias(fields['recipient']),
             'currency': fields['currency'] or 'GBP',
             'rate': decimal.Decimal(fields['rate'] or '1.00'),
             'requested_amount': fields['requested_amount'] or fields['amount'],
@@ -61,7 +62,7 @@ class BankGiroCreditProcessor(BaseProcessor):
     pattern = re.compile(r'BANK GIRO CREDIT REF (?P<sender>.+), (?P<ref>.+)')
 
     def clean_fields(self, fields):
-        fields['sender'], _ = CounterParty.objects.get_or_create_by_alias(fields['sender'])
+        fields['sender'] = get_or_create_alias(fields['sender'])
         fields['type'] = CreditTransaction.CreditType.GIRO
         return fields
 
@@ -72,7 +73,7 @@ class FasterPaymentProcessor(BaseProcessor):
     pattern = re.compile(r'FASTER PAYMENTS RECEIPT REF.(?P<ref>.+) FROM (?P<sender>.+)')
 
     def clean_fields(self, fields):
-        fields['sender'], _ = CounterParty.objects.get_or_create_by_alias(fields['sender'])
+        fields['sender'] = get_or_create_alias(fields['sender'])
         fields['type'] = CreditTransaction.CreditType.FASTER_PAYMENT
         return fields
 
@@ -83,7 +84,7 @@ class CreditProcessor(BaseProcessor):
     pattern = re.compile(r'CREDIT FROM (?P<sender>.+) ON (?P<date>\d{4}-\d{2}-\d{2})')
 
     def clean_fields(self, fields):
-        fields['sender'], _ = CounterParty.objects.get_or_create_by_alias(fields['sender'])
+        fields['sender'] = get_or_create_alias(fields['sender'])
         fields['type'] = CreditTransaction.CreditType.CREDIT
         return fields
 
@@ -92,10 +93,10 @@ class CreditProcessor(BaseProcessor):
 class DirectDebitProcessor(BaseProcessor):
     transaction_class = DirectDebitTransaction
     pattern = re.compile(
-        r'(PAID TRANSACTION )?DIRECT DEBIT PAYMENT TO (?P<recipient>.+) REF (?P<ref>.+)(, MANDATE NO (?P<mandate>\d+))?')
+        r'(PAID TRANSACTION )?DIRECT DEBIT PAYMENT TO (?P<recipient>.+) REF (?P<ref>.+?)(, MANDATE NO (?P<mandate>\d+))?$')
 
     def clean_fields(self, fields):
-        fields['recipient'], _ = CounterParty.objects.get_or_create_by_alias(fields['recipient'])
+        fields['recipient'] = get_or_create_alias(fields['recipient'])
         fields['mandate'] = fields['mandate'] or 0
         return fields
 
@@ -139,6 +140,6 @@ class StandingOrderProcessor(BaseProcessor):
         r'STANDING ORDER (VIA (?P<via>.+))? TO (?P<recipient>.+) REFERENCE (?P<ref>.+) , MANDATE NO (?P<mandate>\d+)')
 
     def clean_fields(self, fields):
-        fields['recipient'], _ = CounterParty.objects.get_or_create_by_alias(fields['recipient'])
+        fields['recipient'] = get_or_create_alias(fields['recipient'])
         del fields['via']  # "FASTER PAYMENT" or None
         return fields
