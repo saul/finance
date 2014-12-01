@@ -1,5 +1,11 @@
+# Python
 __pycache__/
+env/
+
+# IntelliJ IDEA
 .idea/
+
+# Static front-end
 node_modules/
 static_dist/
 static_root/
