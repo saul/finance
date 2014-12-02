@@ -1,7 +1,8 @@
 import re
 
 from django.views.generic import View, DetailView
-from .models import Alias, Pattern, CounterParty
+
+from .models import Alias, CounterParty
 from transactions.models import Transaction
 
 
@@ -33,5 +34,6 @@ class CounterPartyDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['transactions'] = Transaction.objects.filter(counterparty_alias__in=self.object.alias_set.values_list('pk', flat=True)).order_by('-date')
+        context['transactions'] = Transaction.objects.filter(
+            counterparty_alias__in=self.object.alias_set.values_list('pk', flat=True)).order_by('-date')
         return context
