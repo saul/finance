@@ -66,8 +66,9 @@ def main():
         print(Fore.YELLOW + 'Not committing to database', '(--dry-run specified)')
         db.transaction.savepoint_rollback(sid)
     else:
+        print('Committing... ', end='')
         db.transaction.savepoint_commit(sid)
-        print(Fore.GREEN + 'Import committed to database')
+        print(Fore.GREEN + 'done')
 
 
 if __name__ == '__main__':
