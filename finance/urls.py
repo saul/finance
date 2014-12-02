@@ -5,6 +5,7 @@ from transactions.views import HomeView
 
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^transactions/', include('transactions.urls', namespace='transactions')),
     url(r'^counterparty/', include('counterparty.urls', namespace='counterparty')),
 
     url(r'^admin/', include(admin.site.urls)),
