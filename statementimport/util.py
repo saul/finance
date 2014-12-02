@@ -18,7 +18,7 @@ def parse_currency(amount):
 
 def get_or_create_alias(alias_name):
     try:
-        return Alias.objects.get(pk=alias_name)
+        return Alias.objects.get(pk__iexact=alias_name)
     except Alias.DoesNotExist:
         pass
 
