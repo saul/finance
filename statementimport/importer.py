@@ -3,10 +3,18 @@ from datetime import datetime
 from .util import parse_currency
 
 
+class StatementImportError(Exception):
+    pass
+
+
 class BaseImporter:
+    name = None
     processors = []
 
-    def process(self, line, **extra_fields):
+    def process(self, path):
+        raise NotImplementedError()
+
+    def process_line(self, line, **extra_fields):
         for processor_cls in self.processors:
             match = processor_cls.pattern.match(line)
 

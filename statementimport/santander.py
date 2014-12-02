@@ -1,13 +1,75 @@
 import decimal
 import re
+import html
+from datetime import datetime
 
 from transactions.models import *
-from .importer import BaseImporter, BaseProcessor
+from .importer import BaseImporter, BaseProcessor, StatementImportError
 from .util import parse_currency, get_or_create_alias
 
 
 class SantanderImporter(BaseImporter):
-    pass
+    name = 'text'
+    description = 'Imports Santander UK statements from .txt files'
+
+    def process(self, path):
+        with open(path, 'r', encoding='cp1252') as f:
+            yield from self.process_file(f.readlines())
+
+
+    def process_file(self, lines):
+        raw_transactions = []
+
+        passed_header = False
+        parsing = {}
+
+        # cleanup lines
+        lines = map(lambda l: html.unescape(l.replace('\xa0', ' ').strip()), lines)
+
+        for line in lines:
+            if not passed_header:
+                if not line.startswith('Account:'):
+                    continue
+
+                passed_header = True
+                continue
+
+            if not line:
+                if parsing:
+                    raw_transactions.append(parsing)
+                    parsing = {}
+                continue
+
+            key, value = line.split(': ')
+
+            if key == 'Date':
+                value = datetime.strptime(value, '%d/%m/%Y')
+            elif key in ('Amount', 'Balance'):
+                value = parse_currency(value)
+
+            parsing[key] = value
+
+        raw_transactions.append(parsing)
+
+        for transaction_info in raw_transactions:
+            desc = transaction_info['Description']
+
+            if desc.endswith('FEE'):
+                # TODO: fee handling
+                continue
+
+            processed = self.process_line(desc, amount=transaction_info['Amount'],
+                                          cleared_date=transaction_info['Date'])
+            if not processed:
+                raise StatementImportError('unmatched transaction {!r}'.format(desc))
+
+            if not processed.transaction.date:
+                processed.transaction.date = processed.transaction.cleared_date
+
+            processed.transaction.week = processed.transaction.date.isocalendar()[1]
+
+            processed.transaction.full_clean()
+            yield processed.transaction
 
 
 @SantanderImporter.processor
