@@ -1,12 +1,19 @@
 import re
 
-from django.views.generic import View, DetailView
+from django.views.generic import View, DetailView, ListView
 
 from .models import Alias, CounterParty
 from transactions.models import Transaction
 
 
+class CounterPartyListView(ListView):
+    model = CounterParty
+    template_name = 'counterparty_list.html'
+
+
 class CreatePatternedCounterPartyView(View):
+    template_name = 'counterparty_create.html'
+
     def get(self):
         pass
 
