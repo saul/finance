@@ -1,0 +1,55 @@
+{% extends "sidebar_page.html" %}
+
+{% block sidebar %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Actions</h3>
+		</div>
+
+		<div class="list-group">
+			<a class="list-group-item" href="#">
+				Add alias pattern...
+			</a>
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Aliases</h3>
+		</div>
+
+		<ul class="list-group">
+			{% for alias in counterparty.alias_set.all %}
+				<li class="list-group-item">
+					{{ alias }}
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Patterns</h3>
+		</div>
+
+		<ul class="list-group">
+			{% for pattern in counterparty.pattern_set.all %}
+				<li class="list-group-item">
+					<code>{{ pattern.regex }}</code>
+				</li>
+			{% empty %}
+				<li class="list-group-item"><em>(no patterns)</em></li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
+
+{% block main %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Transaction history</h3>
+		</div>
+
+		{% include "transaction_table.html" %}
+	</div>
+{% endblock %}

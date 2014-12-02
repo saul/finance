@@ -2,7 +2,7 @@
 {% load currency %}
 
 {% block description %}
-	Card payment to {% include "counterparty_alias.html" with alias=transaction.recipient only %}
+	Card payment to {% include "counterparty_alias.html" with alias=transaction.counterparty_alias only %}
 {% endblock %}
 
 {% block extra %}

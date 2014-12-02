@@ -2,8 +2,8 @@
 {% load currency %}
 
 {% block description %}
-	Bill payment {% if transaction.amount < 0 %}to{% else %}from{% endif %}
-	{% include "counterparty_alias.html" with alias=transaction.counterparty only %}, reference
+	{{ transaction.get_type_display|capfirst }} to
+	{% include "counterparty_alias.html" with alias=transaction.counterparty_alias only %}, reference
 	<var>{{ transaction.ref }}</var>
 {% endblock %}
 

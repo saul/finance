@@ -23,6 +23,13 @@
 				<tbody>
 				{% block extra %}{% endblock extra %}
 
+				{% if transaction.counterparty_alias %}
+					<tr>
+						<td>Counterparty</td>
+						<td>{{ transaction.counterparty_alias }}</td>
+					</tr>
+				{% endif %}
+
 				<tr>
 					<td>Date cleared</td>
 					<td>{{ transaction.cleared_date|date:"d/m/Y" }}</td>
@@ -31,6 +38,14 @@
 			</table>
 		{% endblock extra.outer %}
 	</div>
+</td>
+
+<td class="category">
+	{% if transaction.category %}
+		{{ transaction.category }}
+	{% else %}
+		<em>(uncategorised)</em>
+	{% endif %}
 </td>
 
 <td class="amount {% if transaction.amount < 0 %}danger{% else %}success{% endif %}">

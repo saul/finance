@@ -33,7 +33,7 @@ class BaseProcessor:
 
     def process(self, extra_fields):
         groups = self.match.groupdict()
-        fields = extra_fields
+        fields = extra_fields.copy()
 
         for group, value in groups.items():
             if value is not None:
@@ -47,8 +47,9 @@ class BaseProcessor:
 
             fields[group] = value
 
-        fields = self.clean_fields(fields)
-        self.transaction = self.transaction_class(**fields)
+        transaction_fields = extra_fields
+        transaction_fields.update(self.clean_fields(fields))
+        self.transaction = self.transaction_class(**transaction_fields)
 
     def clean_fields(self, fields):
         return fields

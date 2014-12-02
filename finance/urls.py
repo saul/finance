@@ -1,11 +1,11 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.contrib import admin
 
 from transactions.views import HomeView
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
-    # url(r'^transactions/', include('transactions.urls')),
+    url(r'^counterparty/', include('counterparty.urls', namespace='counterparty')),
 
     url(r'^admin/', include(admin.site.urls)),
-)
+]

@@ -3,7 +3,7 @@
 
 {% block description %}
 	Credit from
-	{% include "counterparty_alias.html" with alias=transaction.sender only %}
+	{% include "counterparty_alias.html" with alias=transaction.counterparty_alias only %}
 	{% if transaction.ref %}, reference <var>{{ transaction.ref }}</var>{% endif %}
 {% endblock %}
 

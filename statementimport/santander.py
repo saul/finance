@@ -22,19 +22,34 @@ class CashWithdrawalProcessor(BaseProcessor):
 
 
 @SantanderImporter.processor
-class BillPaymentProcessor(BaseProcessor):
-    transaction_class = BillPaymentTransaction
-    pattern = re.compile(
-        r'BILL PAYMENT (VIA (?P<via>.+) )?(TO (?P<recipient>.+?) (REFERENCE (?P<ref>.+?))? ?(, MANDATE NO (?P<mandate>\d+))?|FROM (?P<sender>.+), REFERENCE (?P<sender_ref>.+))$')
+class BillPaymentCreditProcessor(BaseProcessor):
+    transaction_class = CreditTransaction
+    pattern = re.compile(r'BILL PAYMENT FROM (?P<sender>.+), REFERENCE (?P<ref>.+)')
 
     def clean_fields(self, fields):
+        alias = get_or_create_alias(fields['sender'])
         return {
-            'counterparty': get_or_create_alias(fields['recipient'] or fields['sender']),
-            'ref': fields['ref'] or fields['sender_ref'],
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
+            'type': CreditTransaction.CreditType.CREDIT
+        }
+
+
+@SantanderImporter.processor
+class BillPaymentDebitProcessor(BaseProcessor):
+    transaction_class = PaymentTransaction
+    pattern = re.compile(
+        r'BILL PAYMENT (VIA FASTER PAYMENT )?TO (?P<recipient>.+?) (REFERENCE (?P<ref>.+?))? ?(, MANDATE NO (?P<mandate>\d+))?$')
+
+    def clean_fields(self, fields):
+        alias = get_or_create_alias(fields['recipient'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
             'mandate': fields['mandate'] or 0,
-            'amount': fields['amount'],
-            'cleared_date': fields['cleared_date'],
-            # 'via': fields['via']  # "FASTER PAYMENT" or None
+            'type': PaymentTransaction.PaymentType.BILL_PAYMENT
         }
 
 
@@ -45,14 +60,14 @@ class CardPaymentProcessor(BaseProcessor):
         r'CARD PAYMENT TO (?P<recipient>.+)(,(?P<requested_amount>\d+\.\d{2}) (?P<currency>.{3}), RATE (?P<rate>\d+.\d{2})/GBP ON (?P<date>\d{2}-\d{2}-\d{4})( NON-STERLING (.+))?| ON (?P<date2>\d{4}-\d{2}-\d{2}))')
 
     def clean_fields(self, fields):
+        recipient = get_or_create_alias(fields['recipient'])
         return {
-            'recipient': get_or_create_alias(fields['recipient']),
+            'counterparty_alias': recipient,
+            'category': recipient.counterparty.auto_categorise,
             'currency': fields['currency'] or 'GBP',
             'rate': decimal.Decimal(fields['rate'] or '1.00'),
             'requested_amount': fields['requested_amount'] or fields['amount'],
-            'date': fields['date'] or fields['date2'],
-            'amount': fields['amount'],
-            'cleared_date': fields['cleared_date'],
+            'date': fields['date'] or fields['date2']
         }
 
 
@@ -62,9 +77,13 @@ class BankGiroCreditProcessor(BaseProcessor):
     pattern = re.compile(r'BANK GIRO CREDIT REF (?P<sender>.+), (?P<ref>.+)')
 
     def clean_fields(self, fields):
-        fields['sender'] = get_or_create_alias(fields['sender'])
-        fields['type'] = CreditTransaction.CreditType.GIRO
-        return fields
+        alias = get_or_create_alias(fields['sender'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
+            'type': CreditTransaction.CreditType.GIRO
+        }
 
 
 @SantanderImporter.processor
@@ -73,9 +92,13 @@ class FasterPaymentProcessor(BaseProcessor):
     pattern = re.compile(r'FASTER PAYMENTS RECEIPT REF.(?P<ref>.+) FROM (?P<sender>.+)')
 
     def clean_fields(self, fields):
-        fields['sender'] = get_or_create_alias(fields['sender'])
-        fields['type'] = CreditTransaction.CreditType.FASTER_PAYMENT
-        return fields
+        alias = get_or_create_alias(fields['sender'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
+            'type': CreditTransaction.CreditType.FASTER_PAYMENT
+        }
 
 
 @SantanderImporter.processor
@@ -84,21 +107,30 @@ class CreditProcessor(BaseProcessor):
     pattern = re.compile(r'CREDIT FROM (?P<sender>.+) ON (?P<date>\d{4}-\d{2}-\d{2})')
 
     def clean_fields(self, fields):
-        fields['sender'] = get_or_create_alias(fields['sender'])
-        fields['type'] = CreditTransaction.CreditType.CREDIT
-        return fields
+        alias = get_or_create_alias(fields['sender'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'type': CreditTransaction.CreditType.CREDIT
+        }
 
 
 @SantanderImporter.processor
 class DirectDebitProcessor(BaseProcessor):
-    transaction_class = DirectDebitTransaction
+    transaction_class = PaymentTransaction
     pattern = re.compile(
         r'(PAID TRANSACTION )?DIRECT DEBIT PAYMENT TO (?P<recipient>.+) REF (?P<ref>.+?)(, MANDATE NO (?P<mandate>\d+))?$')
 
     def clean_fields(self, fields):
-        fields['recipient'] = get_or_create_alias(fields['recipient'])
-        fields['mandate'] = fields['mandate'] or 0
-        return fields
+        assert fields['amount'] < 0
+        alias = get_or_create_alias(fields['recipient'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
+            'mandate': fields['mandate'] or 0,
+            'type': PaymentTransaction.PaymentType.DIRECT_DEBIT
+        }
 
 
 @SantanderImporter.processor
@@ -107,7 +139,11 @@ class TransferProcessor(BaseProcessor):
     pattern = re.compile(r'TRANSFER (TO|FROM) (?P<counterparty>.+)')
 
     def clean_fields(self, fields):
-        return fields
+        alias = get_or_create_alias(fields['counterparty'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise
+        }
 
 
 @SantanderImporter.processor
@@ -135,11 +171,17 @@ class InterestProcessor(BaseProcessor):
 
 @SantanderImporter.processor
 class StandingOrderProcessor(BaseProcessor):
-    transaction_class = StandingOrderTransaction
+    transaction_class = PaymentTransaction
     pattern = re.compile(
-        r'STANDING ORDER (VIA (?P<via>.+))? TO (?P<recipient>.+) REFERENCE (?P<ref>.+) , MANDATE NO (?P<mandate>\d+)')
+        r'STANDING ORDER (VIA FASTER PAYMENT )?TO (?P<recipient>.+) REFERENCE (?P<ref>.+) , MANDATE NO (?P<mandate>\d+)')
 
     def clean_fields(self, fields):
-        fields['recipient'] = get_or_create_alias(fields['recipient'])
-        del fields['via']  # "FASTER PAYMENT" or None
-        return fields
+        assert fields['amount'] < 0
+        alias = get_or_create_alias(fields['recipient'])
+        return {
+            'counterparty_alias': alias,
+            'category': alias.counterparty.auto_categorise,
+            'ref': fields['ref'],
+            'mandate': fields['mandate'],
+            'type': PaymentTransaction.PaymentType.STANDING_ORDER
+        }

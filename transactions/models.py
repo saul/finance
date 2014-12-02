@@ -1,20 +1,27 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from polymorphic import PolymorphicModel
 from counterparty.models import Alias
 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, primary_key=True)
-    parent = models.ForeignKey('self', null=True, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+
+    class Meta:
+        verbose_name_plural = 'categories'
+
+    def __str__(self):
+        return self.name
 
 
 class Transaction(PolymorphicModel):
-    description = models.CharField(max_length=512)
     category = models.ForeignKey(Category, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     cleared_date = models.DateField()
     date = models.DateField()
     week = models.IntegerField()  # automatically calculated from `date` on save
+    counterparty_alias = models.ForeignKey(Alias, null=True, blank=True)
 
     def __repr__(self):
         return '<{} amount={}, date={}, cleared={}>'.format(
@@ -27,6 +34,12 @@ class Transaction(PolymorphicModel):
     @property
     def list_template_name(self):
         return self.AppMeta.list_template_name
+
+
+class CounterPartyTransaction(Transaction):
+    def clean(self):
+        if self.counterparty_alias is None:
+            raise ValidationError('expected counterparty_alias specified for {} transaction'.format(self.__class__.__name__))
 
 
 class CashWithdrawalTransaction(Transaction):
@@ -49,35 +62,45 @@ class CashWithdrawalTransaction(Transaction):
         )
 
 
-class BillPaymentTransaction(Transaction):
+class PaymentTransaction(CounterPartyTransaction):
     ref = models.CharField(max_length=64)
-    mandate = models.IntegerField(null=True)
-    counterparty = models.ForeignKey(Alias)
+    mandate = models.IntegerField(default=0)
+
+    class PaymentType:
+        BILL_PAYMENT = 1
+        STANDING_ORDER = 2
+        DIRECT_DEBIT = 3
+
+        CHOICES = (
+            (BILL_PAYMENT, 'bill payment'),
+            (STANDING_ORDER, 'standing order'),
+            (DIRECT_DEBIT, 'direct debit')
+        )
+
+    type = models.IntegerField(choices=PaymentType.CHOICES)
 
     class Meta:
-        verbose_name = 'bill payment'
+        verbose_name = 'payment'
 
     class AppMeta:
-        list_template_name = 'transaction_detail/bill_payment.html'
+        list_template_name = 'transaction_detail/payment.html'
 
     def __repr__(self):
-        if self.amount < 0:
-            return '{}, recipient={!r}, ref={!r}, mandate={}>'.format(
-                super().__repr__()[:-1],
-                self.counterparty,
-                self.ref,
-                self.mandate,
-            )
-        else:
-            return '{}, sender={!r}, ref={!r}>'.format(
-                super().__repr__()[:-1],
-                self.counterparty,
-                self.ref,
-            )
+        return '{}, recipient={!r}, ref={!r}, mandate={}>'.format(
+            super().__repr__()[:-1],
+            self.counterparty_alias,
+            self.ref,
+            self.mandate,
+        )
+
+    def clean(self):
+        super().clean()
+
+        if self.amount > 0:
+            raise ValidationError('payment with a positive amount (should be negative)')
 
 
-class CardPaymentTransaction(Transaction):
-    recipient = models.ForeignKey(Alias)
+class CardPaymentTransaction(CounterPartyTransaction):
     requested_amount = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.CharField(max_length=6)
     rate = models.DecimalField(max_digits=6, decimal_places=2)
@@ -91,35 +114,14 @@ class CardPaymentTransaction(Transaction):
     def __repr__(self):
         return '{}, recipient={!r}, requested_amount={} {}>'.format(
             super().__repr__()[:-1],
-            self.recipient,
+            self.counterparty_alias,
             self.requested_amount,
             self.currency,
         )
 
 
-class DirectDebitTransaction(Transaction):
-    recipient = models.ForeignKey(Alias)
-    ref = models.CharField(max_length=64)
-    mandate = models.IntegerField()
-
-    class Meta:
-        verbose_name = 'direct debit'
-
-    class AppMeta:
-        list_template_name = 'transaction_detail/direct_debit.html'
-
-    def __repr__(self):
-        return '{}, recipient={!r}, ref={!r}, mandate={}>'.format(
-            super().__repr__()[:-1],
-            self.recipient,
-            self.ref,
-            self.mandate,
-        )
-
-
-class CreditTransaction(Transaction):
-    sender = models.ForeignKey(Alias)
-    ref = models.CharField(max_length=64)
+class CreditTransaction(CounterPartyTransaction):
+    ref = models.CharField(max_length=64, blank=True)
 
     class CreditType:
         CREDIT = 1
@@ -144,15 +146,18 @@ class CreditTransaction(Transaction):
         return '{}, type={!r} from={!r}, ref={!r}>'.format(
             super().__repr__()[:-1],
             self.get_type_display(),
-            self.sender,
+            self.counterparty_alias,
             self.ref,
         )
 
+    def clean(self):
+        super().clean()
 
-class TransferTransaction(Transaction):
-    # TODO: could this be a Recipient foreign key?
-    counterparty = models.CharField(max_length=64)
+        if self.amount < 0:
+            raise ValidationError('credit with a negative amount (should be positive)')
 
+
+class TransferTransaction(CounterPartyTransaction):
     class Meta:
         verbose_name = 'transfer'
 
@@ -163,7 +168,7 @@ class TransferTransaction(Transaction):
         return '{}, {}={!r}>'.format(
             super().__repr__()[:-1],
             'to' if self.amount < 0 else 'from',
-            self.counterparty,
+            self.counterparty_alias,
         )
 
 
@@ -216,24 +221,4 @@ class InterestTransaction(Transaction):
         return '{}, tax={}>'.format(
             super().__repr__()[:-1],
             self.tax,
-        )
-
-
-class StandingOrderTransaction(Transaction):
-    recipient = models.ForeignKey(Alias)
-    ref = models.CharField(max_length=64)
-    mandate = models.IntegerField()
-
-    class Meta:
-        verbose_name = 'standing order'
-
-    class AppMeta:
-        list_template_name = 'transaction_detail/standing_order.html'
-
-    def __repr__(self):
-        return '{}, to={!r}, ref={!r}, mandate={}>'.format(
-            super().__repr__()[:-1],
-            self.recipient,
-            self.ref,
-            self.mandate,
         )
