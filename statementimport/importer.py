@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from .util import parse_currency
+
 
 class BaseImporter:
     processors = []
