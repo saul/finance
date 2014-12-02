@@ -1,7 +1,7 @@
 import re
 
 from django.views.generic import View, DetailView, ListView
-
+from django.db.models import Sum, Count, Max
 from .models import Alias, CounterParty
 from transactions.models import Transaction
 
@@ -9,6 +9,15 @@ from transactions.models import Transaction
 class CounterPartyListView(ListView):
     model = CounterParty
     template_name = 'counterparty_list.html'
+    context_object_name = 'counterparties'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.annotate(net_amount=Sum('alias__transaction__amount'),
+                         total_transactions=Count('alias__transaction'),
+                         most_recent_transaction=Max('alias__transaction__date'))
+        qs = qs.order_by('-most_recent_transaction')
+        return qs
 
 
 class CreatePatternedCounterPartyView(View):

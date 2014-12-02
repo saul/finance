@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block main %}
+	<table class="table table-bordered table-striped">
+		<thead>
+		<tr>
+			<th>Counterparty</th>
+			<th>Most recent transaction</th>
+			<th class="cell-min-width">Net</th>
+			<th class="cell-min-width">Transactions</th>
+		</tr>
+		</thead>
+
+		<tbody>
+		{% for counterparty in counterparties %}
+			<tr>
+				<td>
+					<a href="{{ counterparty.get_absolute_url }}">
+						{{ counterparty }}
+					</a>
+				</td>
+
+				<td class="cell-min-width">
+					{{ counterparty.most_recent_transaction|date:"d/m/y" }}
+				</td>
+
+				<td class="cell-min-width {% if counterparty.net_amount < 0 %}danger{% else %}success{% endif %}">
+					{{ counterparty.net_amount }}
+				</td>
+
+				<td class="cell-min-width">
+					{{ counterparty.total_transactions }}
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}
