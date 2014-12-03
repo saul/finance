@@ -62,7 +62,7 @@ module.exports = function (grunt) {
       options: {
         separator: ';'
       },
-      dist: {
+      common: {
         src: [
           'static_src/js/bs/transition.js',
           'static_src/js/bs/alert.js',
@@ -79,9 +79,15 @@ module.exports = function (grunt) {
           'static_src/js/common.js',
           'static_src/js/datavis.js',
           'static_src/js/navbar.js',
-          'static_src/js/transaction-table.js'
+          'static_src/js/transaction-table.js' // TODO: move to transactions.js?
         ],
         dest: '<%= distDir %>/js/finance.js'
+      },
+      counterparty: {
+        src: [
+          'static_src/js/counterparty-create.js'
+        ],
+        dest: '<%= distDir %>/js/counterparty.js'
       }
     },
 
@@ -92,9 +98,14 @@ module.exports = function (grunt) {
         sourceMapIncludeSources: true,
         preserveComments: 'some'
       },
-      dist: {
+      common: {
         files: {
-          '<%= distDir %>/js/finance.min.js': '<%= concat_sourcemap.dist.src %>'
+          '<%= distDir %>/js/finance.min.js': '<%= concat_sourcemap.common.src %>'
+        }
+      },
+      counterparty: {
+        files: {
+          '<%= distDir %>/js/counterparty.min.js': '<%= concat_sourcemap.counterparty.src %>'
         }
       }
     },
