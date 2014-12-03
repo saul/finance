@@ -9,3 +9,6 @@ env/
 node_modules/
 static_dist/
 static_root/
+
+# Database
+*.sqlite3
