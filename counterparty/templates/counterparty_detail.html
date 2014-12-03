@@ -1,5 +1,7 @@
 {% extends "sidebar_page.html" %}
 
+{% load currency %}
+
 {% block sidebar %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -11,6 +13,26 @@
 				Add alias pattern...
 			</a>
 		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Metrics</h3>
+		</div>
+
+		<ul class="list-group">
+			<li class="list-group-item">
+				<strong>Total transactions</strong>: {{ metrics.count }}
+			</li>
+
+			<li class="list-group-item">
+				<strong>Net amount</strong>: {{ metrics.sum|format_currency }}
+			</li>
+
+			<li class="list-group-item">
+				<strong>Average amount</strong>: {{ metrics.avg|format_currency }}
+			</li>
+		</ul>
 	</div>
 
 	<div class="panel panel-default">

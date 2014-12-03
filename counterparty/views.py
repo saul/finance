@@ -1,7 +1,7 @@
 import re
 
 from django.views.generic import TemplateView, DetailView, ListView, FormView
-from django.db.models import Sum, Count, Max
+from django.db.models import Sum, Count, Max, Avg
 from django.db import transaction
 from django.contrib import messages
 from django import http
@@ -74,6 +74,7 @@ class CounterPartyDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['transactions'] = Transaction.objects.filter(
-            counterparty_alias__in=self.object.alias_set.values_list('pk', flat=True)).order_by('-date')
+        transactions = Transaction.objects.filter(counterparty_alias__in=self.object.alias_set.values_list('pk', flat=True))
+        context['transactions'] = transactions.order_by('-date')
+        context['metrics'] = transactions.aggregate(sum=Sum('amount'), avg=Avg('amount'), count=Count('amount'))
         return context
