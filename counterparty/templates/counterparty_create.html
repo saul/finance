@@ -1,5 +1,32 @@
 {% extends "base.html" %}
 
-{% block main %}
+{% load staticfiles crispy_forms_tags %}
 
+{% block main %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Create a counterparty</h3>
+		</div>
+		<div class="panel-body">
+			{% crispy form %}
+		</div>
+	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Pattern matches</h3>
+		</div>
+		<div id="preview-results" data-src="{% url "counterparty:pattern_matches" %}">
+			<div class="panel-body">
+				<em class="text-muted">Click preview to view matches for pattern</em>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+
+	<script src="
+			{% if debug %}{% static "js/counterparty.js" %}{% else %}{% static "js/counterparty.min.js" %}{% endif %}"></script>
 {% endblock %}

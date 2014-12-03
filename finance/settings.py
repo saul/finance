@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 import os
+from fnmatch import fnmatch
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -21,10 +22,17 @@ SECRET_KEY = '*+d(dae)0hid(0u8r@87)=mghj1!3&bkh6g+i^8lv^+-fk19-@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = []
+
+
+class GlobList(list):
+    def __contains__(self, key):
+        return any(filter(lambda pattern: fnmatch(key, pattern), self))
+
+
+INTERNAL_IPS = GlobList(['127.0.0.1', '192.168.1.*', '10.*.*.*'])
 
 
 # Application definition
@@ -36,6 +44,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps
+    'crispy_forms',
 
     # Finance apps
     'transactions',
@@ -67,6 +78,7 @@ DATABASES = {
     }
 }
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
@@ -93,3 +105,8 @@ STATICFILES_DIRS = (
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
+
+
+# Crispy forms
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

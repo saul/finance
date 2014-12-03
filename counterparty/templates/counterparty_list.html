@@ -1,4 +1,18 @@
-{% extends "base.html" %}
+{% extends "sidebar_page.html" %}
+
+{% block sidebar %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">Actions</h3>
+		</div>
+
+		<div class="list-group">
+			<a class="list-group-item" href="{% url "counterparty:create" %}">
+				Create counterparty...
+			</a>
+		</div>
+	</div>
+{% endblock %}
 
 {% block main %}
 	<table class="table table-bordered table-striped">
