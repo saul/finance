@@ -1,0 +1,34 @@
+COUNTERPARTY VIEWS
+==================
+
+- Workflow to create a new Counter Party
+-- fix form error colours
+
+- CounterParty detail
+-- Rename
+-- Add pattern
+--- uses same logic as "Create counter party"
+-- Categorise Counter Party as...
+--- auto-update all "uncategorised" transactions
+--- see counterparty._meta.get_related_fields[...].field.(model|name)
+
+
+TRANSACTION VIEWS
+=================
+
+- Change transaction category (from transaction list inplace, in bulk via confirmation)
+-- use Javascript drop-down (selectize)
+--- able to create new
+--- orphaned categories are deleted on change
+--- ordered by most recently used
+
+
+OVERVIEW METRICS
+================
+
+- Money in
+- Money out
+-- Previous month
+-- Average month
+-- Month so far
+-- Budgeted
