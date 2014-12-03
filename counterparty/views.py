@@ -7,7 +7,7 @@ from django.contrib import messages
 from django import http
 
 from transactions.models import Transaction
-from .models import Alias, CounterParty
+from .models import Alias, CounterParty, Pattern
 from .forms import CreateCounterPartyPatternForm
 
 
@@ -31,10 +31,20 @@ class CreatePatternedCounterPartyView(FormView):
 
     def form_valid(self, form):
         with transaction.atomic():
-            counterparty, _ = CounterParty.objects.get_or_create(pk__iexact=form.cleaned_data['counterparty'])
-            print('{!r}'.format(counterparty))
+            counterparty, created = CounterParty.objects.get_or_create(
+                pk__iexact=form.cleaned_data['counterparty'],
+                defaults={'pk': form.cleaned_data['counterparty']}
+            )
 
+            # we may have changed the casing of the pk, so update
+            if not created:
+                counterparty.pk = form.cleaned_data['counterparty']
+                counterparty.save()
+
+            # create a pattern for this counterparty
             pattern = form.cleaned_data['pattern']
+            Pattern.objects.create(counterparty=counterparty, regex=pattern)
+
             aliases = AliasPatternMatchesView.get_matches(pattern)
 
             # find which aliases this pattern matches that already have a counterparty
@@ -50,6 +60,7 @@ class CreatePatternedCounterPartyView(FormView):
             # delete orphaned counterparties
             CounterParty.objects.annotate(num_aliases=Count('alias')).filter(num_aliases=0).delete()
 
+            messages.success(self.request, 'Successfully created now counterparty (merged {} existing aliases)'.format(aliases.count()))
             return http.HttpResponseRedirect(counterparty.get_absolute_url())
 
 
