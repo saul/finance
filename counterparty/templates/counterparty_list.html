@@ -1,5 +1,7 @@
 {% extends "sidebar_page.html" %}
 
+{% load currency %}
+
 {% block sidebar %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
@@ -39,7 +41,7 @@
 				</td>
 
 				<td class="cell-min-width {% if counterparty.net_amount < 0 %}danger{% else %}success{% endif %}">
-					{{ counterparty.net_amount }}
+					{{ counterparty.net_amount|format_currency }}
 				</td>
 
 				<td class="cell-min-width">
