@@ -1,16 +1,12 @@
 COUNTERPARTY VIEWS
 ==================
 
-- Workflow to create a new Counter Party
--- fix form error colours
-
 - CounterParty detail
 -- Rename
 -- Add pattern
 --- uses same logic as "Create counter party"
 -- Categorise Counter Party as...
 --- auto-update all "uncategorised" transactions
---- see counterparty._meta.get_related_fields[...].field.(model|name)
 
 
 TRANSACTION VIEWS
