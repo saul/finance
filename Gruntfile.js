@@ -115,7 +115,7 @@ module.exports = function (grunt) {
 
     less: {
       options: {
-        //strictMath: true,
+        strictMath: true,
         sourceMap: true,
         sourceMapURL: 'finance.css.map',
         sourceMapFilename: '<%= distDir %>/css/<%= less.options.sourceMapURL %>',
