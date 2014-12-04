@@ -88,24 +88,24 @@
 //
 //## Define common padding and border radius sizes and more. Values based on 14px text and 1.428 line-height (~20px to start).
 
-@padding-base-vertical:     0.5em;
-@padding-base-horizontal:   0.75em;
+@padding-base-vertical:     8px;
+@padding-base-horizontal:   12px;
 
-@padding-large-vertical:    0.625em;
-@padding-large-horizontal:  1em;
+@padding-large-vertical:    10px;
+@padding-large-horizontal:  16px;
 
-@padding-small-vertical:    0.3125em;
-@padding-small-horizontal:  0.625em;
+@padding-small-vertical:    5px;
+@padding-small-horizontal:  10px;
 
-@padding-xs-vertical:       0.0625em;
-@padding-xs-horizontal:     0.3125em;
+@padding-xs-vertical:       1px;
+@padding-xs-horizontal:     5px;
 
 @line-height-large:         1.33;
 @line-height-small:         1.5;
 
-@border-radius-base:        0.25em;
-@border-radius-large:       0.375em;
-@border-radius-small:       0.1875em;
+@border-radius-base:        4px;
+@border-radius-large:       6px;
+@border-radius-small:       3px;
 
 //** Global color for active items (e.g., navs or dropdowns).
 @component-active-color:    #fff;
@@ -123,9 +123,9 @@
 //## Customizes the `.table` component with basic values, each used across all table variations.
 
 //** Padding for `<th>`s and `<td>`s.
-@table-cell-padding:            0.5em;
+@table-cell-padding:            8px;
 //** Padding for cells in `.table-condensed`.
-@table-condensed-cell-padding:  0.3125em;
+@table-condensed-cell-padding:  5px;
 
 //** Default background color used for all tables.
 @table-bg:                      #fff;
@@ -349,7 +349,7 @@
 
 // Basics of a navbar
 @navbar-height:                    50px;
-@navbar-margin-bottom:             1em;
+@navbar-margin-bottom:             @line-height-computed;
 @navbar-border-radius:             @border-radius-base;
 @navbar-padding-horizontal:        floor((@grid-gutter-width / 2));
 @navbar-padding-vertical:          ((@navbar-height - @line-height-computed) / 2);
@@ -410,7 +410,7 @@
 //##
 
 //=== Shared nav styles
-@nav-link-padding:                          0.7em 1em;
+@nav-link-padding:                          10px 15px;
 @nav-link-hover-bg:                         @gray-lighter;
 
 @nav-disabled-link-color:                   @gray-light;
@@ -475,7 +475,7 @@
 //
 //##
 
-@jumbotron-padding:              2em;
+@jumbotron-padding:              30px;
 @jumbotron-color:                inherit;
 @jumbotron-bg:                   @gray-lighter;
 @jumbotron-heading-color:        inherit;
@@ -574,10 +574,10 @@
 //##
 
 //** Padding applied to the modal body
-@modal-inner-padding:         1em;
+@modal-inner-padding:         15px;
 
 //** Padding applied to the modal title
-@modal-title-padding:         1em;
+@modal-title-padding:         15px;
 //** Modal title line-height
 @modal-title-line-height:     @line-height-base;
 
@@ -606,7 +606,7 @@
 //
 //## Define alert colors, border radius, and padding.
 
-@alert-padding:               1em;
+@alert-padding:               15px;
 @alert-border-radius:         @border-radius-base;
 @alert-link-font-weight:      bolder;
 
@@ -689,8 +689,8 @@
 //##
 
 @panel-bg:                    #fff;
-@panel-body-padding:          1em;
-@panel-heading-padding:       0.75em 1em;
+@panel-body-padding:          15px;
+@panel-heading-padding:       10px 15px;
 @panel-footer-padding:        @panel-heading-padding;
 @panel-border-radius:         @border-radius-base;
 
@@ -728,7 +728,7 @@
 //##
 
 //** Padding around the thumbnail image
-@thumbnail-padding:           0.25em;
+@thumbnail-padding:           4px;
 //** Thumbnail background color
 @thumbnail-bg:                @body-bg;
 //** Thumbnail border color
@@ -739,7 +739,7 @@
 //** Custom text color for thumbnail captions
 @thumbnail-caption-color:     @text-color;
 //** Padding around the thumbnail caption
-@thumbnail-caption-padding:   0.5em;
+@thumbnail-caption-padding:   9px;
 
 
 //== Wells
@@ -773,8 +773,8 @@
 //
 //##
 
-@breadcrumb-padding-vertical:   0.5em;
-@breadcrumb-padding-horizontal: 1em;
+@breadcrumb-padding-vertical:   8px;
+@breadcrumb-padding-horizontal: 15px;
 //** Breadcrumb background color
 @breadcrumb-bg:                 #f5f5f5;
 //** Breadcrumb text color
