@@ -60,7 +60,9 @@ module.exports = function (grunt) {
 
     concat_sourcemap: {
       options: {
-        separator: ';'
+        separator: ';',
+        sourcesContent: true,
+        sourceRoot: '/'
       },
       common: {
         src: [
