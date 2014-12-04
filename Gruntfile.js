@@ -69,7 +69,7 @@ module.exports = function (grunt) {
           'static_src/js/bs/transition.js',
           'static_src/js/bs/alert.js',
           'static_src/js/bs/button.js',
-          'static_src/js/bs/carousel.js',
+          //'static_src/js/bs/carousel.js',
           'static_src/js/bs/collapse.js',
           'static_src/js/bs/dropdown.js',
           'static_src/js/bs/modal.js',
