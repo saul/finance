@@ -76,6 +76,7 @@ module.exports = function (grunt) {
           'static_src/js/bs/scrollspy.js',
           'static_src/js/bs/tab.js',
           'static_src/js/bs/affix.js',
+          'static_src/js/thirdparty/selectize.js',
           'static_src/js/common.js',
           'static_src/js/datavis.js',
           'static_src/js/navbar.js',
@@ -112,7 +113,7 @@ module.exports = function (grunt) {
 
     less: {
       options: {
-        strictMath: true,
+        //strictMath: true,
         sourceMap: true,
         sourceMapURL: 'finance.css.map',
         sourceMapFilename: '<%= distDir %>/css/<%= less.options.sourceMapURL %>',
