@@ -27,6 +27,5 @@
 {% block scripts %}
 	{{ block.super }}
 
-	<script src="
-			{% if debug %}{% static "js/counterparty.js" %}{% else %}{% static "js/counterparty.min.js" %}{% endif %}"></script>
+	<script src="{% if debug %}{% static "js/counterparty.js" %}{% else %}{% static "js/counterparty.min.js" %}{% endif %}"></script>
 {% endblock %}
