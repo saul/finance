@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'crispy_forms',
 
     # Finance apps
+    'finance',
     'transactions',
     'counterparty',
 )
