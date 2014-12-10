@@ -82,6 +82,7 @@ module.exports = function (grunt) {
           'static_src/js/common.js',
           'static_src/js/datavis.js',
           'static_src/js/navbar.js',
+          'static_src/js/modal-iframe.js',
           'static_src/js/transaction-table.js' // TODO: move to transactions.js?
         ],
         dest: '<%= distDir %>/js/finance.js'

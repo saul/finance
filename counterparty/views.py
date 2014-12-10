@@ -118,3 +118,7 @@ class CounterPartyDetailView(DetailView):
         context['transactions'] = transactions.order_by('-date')
         context['metrics'] = transactions.aggregate(sum=Sum('amount'), avg=Avg('amount'), count=Count('amount'))
         return context
+
+
+class AddPatternModalView(TemplateView):
+    template_name = 'counterparty_app_pattern_modal.html'
