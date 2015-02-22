@@ -73,8 +73,8 @@ class IncomingOutgoingDataView(View):
             in_data.append(float(in_category_amount_map.get(category, 0)))
             out_data.append(-float(out_category_amount_map.get(category, 0)))
 
-        in_data.append(in_qs.aggregate(total=Sum('amount'))['total'])
-        out_data.append(out_qs.aggregate(total=Sum('amount'))['total'])
+        in_data.append(float(in_qs.aggregate(total=Sum('amount'))['total']))
+        out_data.append(-float(out_qs.aggregate(total=Sum('amount'))['total']))
 
         return JsonResponse({
             'data': [
