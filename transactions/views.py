@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 from django.views.generic import View, ListView
 from django.db.models import Sum
-from .models import Transaction
+from .models import Transaction, Category
 
 
 def get_month_transaction_queryset(year, month):
@@ -59,8 +59,34 @@ class IncomingOutgoingDataView(View):
         transaction_qs = get_month_transaction_queryset(int(year), int(month))
 
         def process_in_out_qs(qs):
-            return qs.values('category').annotate(total=Sum('amount')).order_by()
+            return dict(qs.values('category').annotate(total=Sum('amount')).values_list('category', 'total'))
 
-        in_out_qs = map(process_in_out_qs, [transaction_qs.filter(amount__gt=0), transaction_qs.filter(amount__lt=0)])
+        in_qs, out_qs = transaction_qs.filter(amount__gt=0), transaction_qs.filter(amount__lt=0)
+        in_category_amount_map, out_category_amount_map = map(process_in_out_qs, [in_qs, out_qs])
 
-        return JsonResponse({})
+        categories = list(Category.objects.values_list('pk', flat=True))
+
+        in_data = ['Incoming']
+        out_data = ['Outgoing']
+
+        for category in [None] + categories:
+            in_data.append(float(in_category_amount_map.get(category, 0)))
+            out_data.append(-float(out_category_amount_map.get(category, 0)))
+
+        in_data.append(in_qs.aggregate(total=Sum('amount'))['total'])
+        out_data.append(out_qs.aggregate(total=Sum('amount'))['total'])
+
+        return JsonResponse({
+            'data': [
+                ['Category', 'Uncategorised'] + categories + [{'role': 'annotation'}],
+                in_data,
+                out_data
+            ],
+            'options': {
+                'isStacked': True,
+                'legend': {
+                    'position': 'top'
+                },
+                'backgroundColor': 'transparent'
+            }
+        })
