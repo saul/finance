@@ -21,6 +21,7 @@
 		<thead>
 		<tr>
 			<th>Counterparty</th>
+			<th>Category</th>
 			<th>Most recent transaction</th>
 			<th class="cell-min-width">Net</th>
 			<th class="cell-min-width">Transactions</th>
@@ -34,6 +35,14 @@
 					<a href="{{ counterparty.get_absolute_url }}">
 						{{ counterparty }}
 					</a>
+				</td>
+
+				<td>
+					{% if counterparty.category %}
+						{{ counterparty.category }}
+					{% else %}
+						<em>(uncategorised)</em>
+					{% endif %}
 				</td>
 
 				<td class="cell-min-width">
