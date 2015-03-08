@@ -4,7 +4,7 @@
   var $modal = $('#modal-iframe');
   var $iframeLoading = $('#modal-loading');
   var $iframeContent = $('#modal-iframe-content');
-  var $iframe = $('#modal-iframe-content iframe');
+  var $iframe = $iframeContent.find('iframe');
 
   window.iframeModal = {
     open: function (href) {
@@ -28,6 +28,8 @@
       if (!this.isTop()) {
         return window.top.iframeModal.close();
       }
+
+      $modal.modal('hide');
     },
 
     isTop: function () {
@@ -38,6 +40,11 @@
   $iframe.load(function () {
     // hide loading screen
     $iframeLoading.hide();
+
+    // resize iframe content to document size
+    var iframe = $iframeContent.find('iframe')[0];
+    iframe.height = iframe.contentDocument.body.clientHeight + 'px';
+
     $iframeContent.show();
   });
 
@@ -48,5 +55,9 @@
   $('[data-toggle="modal-iframe"]').click(function () {
     var $this = $(this);
     window.iframeModal.open($this.attr('data-target'));
+  });
+
+  $('[data-dismiss="modal-iframe"]').click(function () {
+    window.iframeModal.close();
   });
 })();
