@@ -17,6 +17,7 @@
 
 <body class="iframe-modal-body">
 
+{% block outer %}
 <div class="modal-header">
 	<button type="button" class="close" data-dismiss="modal-iframe"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
 	</button>
@@ -32,6 +33,7 @@
 		<button type="button" class="btn btn-default" data-dismiss="modal-iframe">Close</button>
 	{% endblock %}
 </div>
+{% endblock %}
 
 {% block scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>

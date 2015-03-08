@@ -12,7 +12,12 @@ class LenientChoiceField(forms.ChoiceField):
         return True
 
 
-class CreateCounterPartyPatternForm(forms.Form):
+class CategoryMixin:
+    def get_category_choices(self):
+        return Category.objects.values_list('pk', 'name')
+
+
+class CreateCounterPartyPatternForm(forms.Form, CategoryMixin):
     counterparty = forms.CharField(label='Name', max_length=100)
     auto_categorise = LenientChoiceField()
     pattern = forms.CharField(max_length=200)
@@ -25,6 +30,10 @@ class CreateCounterPartyPatternForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['auto_categorise'].choices = self.get_category_choices()
 
-    def get_category_choices(self):
-        categories = Category.objects.values_list('pk', flat=True)
-        return zip(categories, categories)
+
+class CategoryForm(forms.Form, CategoryMixin):
+    category = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].choices = self.get_category_choices()

@@ -37,15 +37,30 @@
     }
   };
 
+  function autoIframeHeight(iframe) {
+    iframe.style.height = iframe.contentDocument.body.scrollHeight + 'px';
+  }
+
   $iframe.load(function () {
     // hide loading screen
     $iframeLoading.hide();
+    $iframeContent.show();
 
     // resize iframe content to document size
     var iframe = $iframeContent.find('iframe')[0];
-    iframe.height = iframe.contentDocument.body.clientHeight + 'px';
+    autoIframeHeight(iframe);
 
-    $iframeContent.show();
+    var observer = new MutationObserver(function () {
+      autoIframeHeight(iframe);
+    });
+
+    var config = {
+      attributes: true,
+      childList: true,
+      characterData: true,
+      subtree: true
+    };
+    observer.observe(iframe.contentDocument.body, config);
   });
 
   $modal.on('hidden.bs.modal', function () {

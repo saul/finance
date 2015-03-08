@@ -38,8 +38,8 @@
 				</td>
 
 				<td>
-					{% if counterparty.category %}
-						{{ counterparty.category }}
+					{% if counterparty.auto_categorise %}
+						{{ counterparty.auto_categorise }}
 					{% else %}
 						<em>(uncategorised)</em>
 					{% endif %}

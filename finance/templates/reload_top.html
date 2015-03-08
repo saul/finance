@@ -1,0 +1,9 @@
+{% extends "iframe_base.html" %}
+
+{% block scripts %}
+	{{ block.super }}
+	<script>
+		iframeModal.close();
+		top.location.reload();
+	</script>
+{% endblock %}

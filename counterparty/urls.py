@@ -7,5 +7,7 @@ urlpatterns = [
     url(r'create/$', views.CreatePatternedCounterPartyView.as_view(), name='create'),
     url(r'pattern_matches/$', views.AliasPatternMatchesView.as_view(), name='pattern_matches'),
     url(r'add_pattern/$', views.AddPatternModalView.as_view(), name='add_pattern'),
+
+    url(r'^(?P<pk>.+)/categorise/$', views.CategoriseModalView.as_view(), name='categorise'),
     url(r'^(?P<pk>.+)/$', views.CounterPartyDetailView.as_view(), name='detail'),
 ]

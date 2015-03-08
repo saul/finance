@@ -5,10 +5,11 @@ from django.db.models import Sum, Count, Max, Avg
 from django.db import transaction
 from django.contrib import messages
 from django import http
+from django.shortcuts import redirect
 
 from transactions.models import Transaction, Category
 from .models import Alias, CounterParty, Pattern
-from .forms import CreateCounterPartyPatternForm
+from .forms import CreateCounterPartyPatternForm, CategoryForm
 
 
 class CounterPartyListView(ListView):
@@ -32,12 +33,9 @@ class CreatePatternedCounterPartyView(FormView):
     def form_valid(self, form):
         with transaction.atomic():
             category, _ = Category.objects.get_or_create(
-                pk__iexact=form.cleaned_data['auto_categorise'],
-                defaults={'pk': form.cleaned_data['auto_categorise']}
+                name__iexact=form.cleaned_data['auto_categorise'],
+                defaults={'name': form.cleaned_data['auto_categorise']}
             )
-
-            # delete orphaned categories
-            Category.objects.annotate(num_counterparties=Count('counterparty')).filter(num_counterparties=0).delete()
 
             if CounterParty.objects.filter(pk__iexact=form.cleaned_data['counterparty']).exists():
                 transaction.rollback()
@@ -122,3 +120,29 @@ class CounterPartyDetailView(DetailView):
 
 class AddPatternModalView(TemplateView):
     template_name = 'counterparty_app_pattern_modal.html'
+
+
+class CategoriseModalView(FormView):
+    model = CounterParty
+    template_name = 'counterparty_categorise_modal.html'
+    form_class = CategoryForm
+
+    def dispatch(self, request, pk):
+        self.counterparty = CounterParty.objects.get(pk=pk)
+        return super().dispatch(request)
+
+    def form_valid(self, form):
+        transactions = Transaction.objects.filter(counterparty_alias__counterparty=self.counterparty, category__isnull=True)
+        transactions.update(category=form.cleaned_data['category'])
+
+        self.counterparty.auto_categorise_id = form.cleaned_data['category']
+        self.counterparty.save()
+
+        messages.success(self.request, 'Transactions updated successfully')
+
+        return redirect('reload_top')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['counterparty'] = self.counterparty
+        return context

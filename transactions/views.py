@@ -59,12 +59,12 @@ class IncomingOutgoingDataView(View):
         transaction_qs = get_month_transaction_queryset(int(year), int(month))
 
         def process_in_out_qs(qs):
-            return dict(qs.values('category').annotate(total=Sum('amount')).values_list('category', 'total'))
+            return dict(qs.values('category__name').annotate(total=Sum('amount')).values_list('category__name', 'total'))
 
         in_qs, out_qs = transaction_qs.filter(amount__gt=0), transaction_qs.filter(amount__lt=0)
         in_category_amount_map, out_category_amount_map = map(process_in_out_qs, [in_qs, out_qs])
 
-        categories = list(Category.objects.values_list('pk', flat=True))
+        categories = list(Category.objects.values_list('name', flat=True))
 
         in_data = ['Incoming']
         out_data = ['Outgoing']

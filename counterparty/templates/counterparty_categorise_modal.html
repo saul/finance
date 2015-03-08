@@ -1,0 +1,23 @@
+{% extends "iframe_base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block outer %}
+	<form method="post">
+		{% csrf_token %}
+		{{ block.super }}
+	</form>
+{% endblock %}
+
+{% block title %}
+	Categorise {{ counterparty }}
+{% endblock %}
+
+{% block body %}
+	{{ form|crispy }}
+{% endblock %}
+
+{% block footer %}
+	{{ block.super }}
+	<button type="submit" class="btn btn-success">Save</button>
+{% endblock %}
