@@ -58,29 +58,21 @@ class IncomingOutgoingDataView(View):
     def get(self, request, year, month):
         transaction_qs = get_month_transaction_queryset(int(year), int(month))
 
-        def process_in_out_qs(qs):
-            return dict(qs.values('category__name').annotate(total=Sum('amount')).values_list('category__name', 'total'))
-
-        in_qs, out_qs = transaction_qs.filter(amount__gt=0), transaction_qs.filter(amount__lt=0)
-        in_category_amount_map, out_category_amount_map = map(process_in_out_qs, [in_qs, out_qs])
+        category_netamt_map = dict(transaction_qs.values('category__name').annotate(total=Sum('amount')).values_list('category__name', 'total'))
 
         categories = list(Category.objects.values_list('name', flat=True))
 
-        in_data = ['Incoming']
-        out_data = ['Outgoing']
+        net_data = ['Net']
 
         for category in [None] + categories:
-            in_data.append(float(in_category_amount_map.get(category, 0)))
-            out_data.append(-float(out_category_amount_map.get(category, 0)))
+            net_data.append(float(category_netamt_map.get(category, 0)))
 
-        in_data.append(float(in_qs.aggregate(total=Sum('amount'))['total']))
-        out_data.append(-float(out_qs.aggregate(total=Sum('amount'))['total']))
+        net_data.append(float(transaction_qs.aggregate(total=Sum('amount'))['total']))
 
         return JsonResponse({
             'data': [
                 ['Category', 'Uncategorised'] + categories + [{'role': 'annotation'}],
-                in_data,
-                out_data
+                net_data
             ],
             'options': {
                 'isStacked': True,
