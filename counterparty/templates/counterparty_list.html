@@ -50,7 +50,11 @@
 				</td>
 
 				<td class="cell-min-width {% if counterparty.net_amount < 0 %}danger{% else %}success{% endif %}">
-					{{ counterparty.net_amount|format_currency }}
+					{% if counterparty.net_amount == None %}
+						{{ 0|format_currency }}
+					{% else %}
+						{{ counterparty.net_amount|format_currency }}
+					{% endif %}
 				</td>
 
 				<td class="cell-min-width">
