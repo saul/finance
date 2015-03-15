@@ -2,10 +2,13 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
+from django.views.generic import View, ListView, FormView
+from django.db.models import Sum, Count
+from django.contrib import messages
+from django.shortcuts import redirect
 
-from django.views.generic import View, ListView
-from django.db.models import Sum
 from .models import Transaction, Category
+from .forms import CategoriseForm
 
 
 def get_month_transaction_queryset(year, month):
@@ -77,8 +80,42 @@ class IncomingOutgoingDataView(View):
             'options': {
                 'isStacked': True,
                 'legend': {
-                    'position': 'top'
+                    'position': 'top',
+                    'maxLines': 0
                 },
                 'backgroundColor': 'transparent'
             }
         })
+
+
+class CategoriseView(FormView):
+    form_class = CategoriseForm
+
+    def form_valid(self, form):
+        transaction = form.cleaned_data['transaction']
+
+        old_category = transaction.category
+
+        if form.cleaned_data['create_category']:
+            transaction.category_id = Category.objects.create(name=form.cleaned_data['category'])
+        else:
+            transaction.category_id = form.cleaned_data['category']
+
+        transaction.save()
+
+        # delete any orphaned categories
+        if old_category:
+            Category.objects.annotate(
+                num_transactions=Count('transaction'),
+                num_counterparties=Count('counterparty')
+            ).filter(
+                num_transactions=0,
+                num_counterparties=0
+            ).delete()
+
+        messages.success(self.request, 'Updated category successfully')
+        return redirect(self.request.META['HTTP_REFERER'])
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Unable to categorise transaction')
+        return redirect(self.request.META['HTTP_REFERER'])

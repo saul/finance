@@ -40,12 +40,16 @@
 	</div>
 </td>
 
-<td class="category">
-	{% if transaction.category %}
-		{{ transaction.category }}
-	{% else %}
-		<em>(uncategorised)</em>
-	{% endif %}
+<td class="category {% if not transaction.category %}warning{% endif %}">
+	<span class="static" data-category-id="{{ transaction.category.pk|default:'' }}">
+		{% if transaction.category %}
+			{{ transaction.category }}
+		{% else %}
+			<em>(uncategorised)</em>
+		{% endif %}
+	</span>
+
+	<span class="dynamic"></span>
 </td>
 
 <td class="amount {% if transaction.amount < 0 %}danger{% else %}success{% endif %}">

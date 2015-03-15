@@ -1,3 +1,5 @@
+{% load crispy_forms_tags transaction_table %}
+
 {% if transaction_timeline %}
 	<nav class="pagination-full-width-nav">
 		<ul class="pagination pagination-full-width">
@@ -22,6 +24,23 @@
 	</nav>
 {% endif %}
 
+<div class="transaction-categorise-container hidden">
+	<form method="post" action="{% url 'transactions:categorise' %}">
+		{% csrf_token %}
+		<input type="text" name="transaction">
+		<input type="checkbox" name="create_category">
+		<input type="text" name="category">
+	</form>
+
+	{% get_categories as transaction_categories %}
+	<select name="category" class="no-selectize">
+		<option value="">Uncategorised</option>
+		{% for value, display in transaction_categories %}
+			<option value="{{ value }}">{{ display }}</option>
+		{% endfor %}
+	</select>
+</div>
+
 <div class="table-responsive">
 	<table class="table table-bordered table-striped transaction-table">
 		<thead>
@@ -44,7 +63,7 @@
 				</thead>
 				<tbody>
 			{% endifchanged %}
-			<tr class="transaction">
+			<tr class="transaction" data-pk="{{ transaction.pk }}">
 				{% include transaction.list_template_name %}
 			</tr>
 		{% empty %}

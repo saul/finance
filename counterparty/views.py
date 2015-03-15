@@ -8,8 +8,9 @@ from django import http
 from django.shortcuts import redirect
 
 from transactions.models import Transaction, Category
+from transactions.forms import CategoryForm
 from .models import Alias, CounterParty, Pattern
-from .forms import CreateCounterPartyPatternForm, CategoryForm
+from .forms import CreateCounterPartyPatternForm
 
 
 class CounterPartyListView(ListView):
