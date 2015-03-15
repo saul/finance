@@ -11,14 +11,14 @@
 
 			{% for date, future in transaction_timeline.months %}
 				<li {% if date.month == transaction_timeline.current_month %}class="active"{% elif future %}class="disabled"{% endif %}>
-					<a href="?year={{ date.year }}&month={{ date.month }}">
+					<a href="{% if future %}#{% else %}?year={{ date.year }}&month={{ date.month }}{% endif %}">
 						{{ date|date:"b"|capfirst }}
 					</a>
 				</li>
 			{% endfor %}
 
 			<li {% if transaction_timeline.next_year.1 %}class="disabled"{% endif %}>
-				<a href="?year={{ transaction_timeline.next_year.0 }}&month=1">{{ transaction_timeline.next_year.0 }} &raquo;</a>
+				<a href="{% if transaction_timeline.next_year.1 %}#{% else %}?year={{ transaction_timeline.next_year.0 }}&month=1{% endif %}">{{ transaction_timeline.next_year.0 }} &raquo;</a>
 			</li>
 		</ul>
 	</nav>
