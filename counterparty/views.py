@@ -27,67 +27,72 @@ class CounterPartyListView(ListView):
         return qs
 
 
+class InvalidFormDataError(Exception):
+    pass
+
+
 class CreatePatternedCounterPartyView(FormView):
     template_name = 'counterparty_create.html'
     form_class = CreateCounterPartyPatternForm
 
     def form_valid(self, form):
-        with transaction.atomic():
-            category, _ = Category.objects.get_or_create(
-                name__iexact=form.cleaned_data['auto_categorise'],
-                defaults={'name': form.cleaned_data['auto_categorise']}
-            )
+        try:
+            with transaction.atomic():
+                # If we cannot find the category, assume it's not a PK but the name of the new category to create
+                try:
+                    category = Category.objects.get(pk=form.cleaned_data['auto_categorise'])
+                except ValueError:
+                    category = Category.objects.create(name=form.cleaned_data['auto_categorise'])
 
-            if CounterParty.objects.filter(pk__iexact=form.cleaned_data['counterparty']).exists():
-                transaction.rollback()
-                messages.error(self.request, 'A counterparty under this name already exists')
-                return self.form_invalid(form)
+                if CounterParty.objects.filter(pk__iexact=form.cleaned_data['counterparty']).exists():
+                    raise InvalidFormDataError('A counterparty under this name already exists')
 
-            counterparty = CounterParty.objects.create(
-                pk=form.cleaned_data['counterparty'],
-                auto_categorise=category
-            )
+                counterparty = CounterParty.objects.create(
+                    pk=form.cleaned_data['counterparty'],
+                    auto_categorise=category
+                )
 
-            # create a pattern for this counterparty
-            pattern = form.cleaned_data['pattern']
-            Pattern.objects.create(counterparty=counterparty, regex=pattern)
+                # create a pattern for this counterparty
+                pattern = form.cleaned_data['pattern']
+                Pattern.objects.create(counterparty=counterparty, regex=pattern)
 
-            aliases = AliasPatternMatchesView.get_matches(pattern)
+                aliases = AliasPatternMatchesView.get_matches(pattern)
 
-            # find which aliases this pattern matches that already have a counterparty
-            invalid_aliases = aliases.annotate(
-                num_counterparty_aliases=Count('counterparty__alias')
-            ).filter(
-                num_counterparty_aliases__gt=1
-            )
+                # find which aliases this pattern matches that already have a counterparty
+                invalid_aliases = aliases.annotate(
+                    num_counterparty_aliases=Count('counterparty__alias')
+                ).filter(
+                    num_counterparty_aliases__gt=1
+                )
 
-            if invalid_aliases.exists():
-                transaction.rollback()
-                messages.error(self.request, 'This pattern matches aliases that already belong to a counterparty')
-                return self.form_invalid(form)
+                if invalid_aliases.exists():
+                    raise InvalidFormDataError('This pattern matches aliases that already belong to a counterparty')
 
-            # update alias counterparties
-            aliases.update(counterparty=counterparty)
+                # update alias counterparties
+                aliases.update(counterparty=counterparty)
 
-            # update the category on all uncategorised transactions
-            uncategorised_transactions = Transaction.objects.filter(
-                counterparty_alias__counterparty=counterparty, category=None
-            ).update(
-                category=category
-            )
+                # update the category on all uncategorised transactions
+                uncategorised_transactions = Transaction.objects.filter(
+                    counterparty_alias__counterparty=counterparty, category=None
+                ).update(
+                    category=category
+                )
 
-            # delete orphaned counterparties
-            CounterParty.objects.annotate(
-                num_aliases=Count('alias')
-            ).filter(
-                num_aliases=0
-            ).delete()
+                # delete orphaned counterparties
+                CounterParty.objects.annotate(
+                    num_aliases=Count('alias')
+                ).filter(
+                    num_aliases=0
+                ).delete()
 
-            messages.success(
-                self.request,
-                'Successfully created new counterparty (merged {} existing aliases)'.format(aliases.count())
-            )
-            return http.HttpResponseRedirect(counterparty.get_absolute_url())
+                messages.success(
+                    self.request,
+                    'Successfully created new counterparty (merged {} existing aliases)'.format(aliases.count())
+                )
+                return http.HttpResponseRedirect(counterparty.get_absolute_url())
+        except InvalidFormDataError as exc:
+            messages.error(self.request, exc)
+            return self.form_invalid(form)
 
 
 class AliasPatternMatchesView(TemplateView):
