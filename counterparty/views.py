@@ -133,10 +133,18 @@ class CategoriseModalView(FormView):
         return super().dispatch(request)
 
     def form_valid(self, form):
-        transactions = Transaction.objects.filter(counterparty_alias__counterparty=self.counterparty, category__isnull=True)
-        transactions.update(category=form.cleaned_data['category'])
+        category = form.cleaned_data['category']
 
-        self.counterparty.auto_categorise_id = form.cleaned_data['category']
+        # If we cannot find the category, assume it's not a PK but the name of the new category to create
+        try:
+            category = Category.objects.get(pk=category)
+        except ValueError:
+            category = Category.objects.create(name=category)
+
+        transactions = Transaction.objects.filter(counterparty_alias__counterparty=self.counterparty, category__isnull=True)
+        transactions.update(category=category)
+
+        self.counterparty.auto_categorise = category
         self.counterparty.save()
 
         messages.success(self.request, 'Transactions updated successfully')

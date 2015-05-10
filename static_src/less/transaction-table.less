@@ -17,6 +17,17 @@
 
   td.category {
     .cell-min-width;
+
+    cursor: pointer;
+
+    .dynamic { display: none; }
+
+    &.changing {
+      padding: 0;
+
+      .static { display: none; }
+      .dynamic { display: inherit; }
+    }
   }
 
   td.amount {
@@ -54,11 +65,5 @@
   td:first-child {
     font-weight: bolder;
     padding-right: 0.5em;
-  }
-}
-
-.transaction-table {
-  .category {
-    cursor: pointer;
   }
 }

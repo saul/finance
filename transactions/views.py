@@ -94,12 +94,14 @@ class CategoriseView(FormView):
     def form_valid(self, form):
         transaction = form.cleaned_data['transaction']
 
+        category = form.cleaned_data['category']
         old_category = transaction.category
 
-        if form.cleaned_data['create_category']:
-            transaction.category_id = Category.objects.create(name=form.cleaned_data['category'])
-        else:
-            transaction.category_id = form.cleaned_data['category']
+        # If we cannot find the category, assume it's not a PK but the name of the new category to create
+        try:
+            transaction.category = Category.objects.get(pk=category)
+        except ValueError:
+            transaction.category = Category.objects.create(name=category)
 
         transaction.save()
 

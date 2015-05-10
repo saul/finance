@@ -26,31 +26,27 @@
     var $dynamic = $this.find('.dynamic');
 
     var $select = $('.transaction-categorise-container select[name=category]').clone();
-    $select.find('[value="' + $static.data('category-id') + '"]').attr('selected', 'selected');
+    $select.find('[value="' + $static.data('category-id') + '"]').prop('selected', true);
 
     $dynamic.empty().append($select);
     window.initSelectize($select);
 
     $select[0].selectize.on('dropdown_close', function () {
       var value = this.$control.find('.item').data('value') || this.$control_input.val();
-      var createdValue = value !== '' && this.$control.find('.item').data('value') === '';
 
-      if (!createdValue && $static.data('category-id') == value) {
-        $dynamic.hide();
-        $static.show();
+      if ($static.data('category-id') == value) {
+        $this.removeClass('changing');
         return;
       }
 
       var $form = $('.transaction-categorise-container form');
       $form.find('[name=transaction]').val(pk);
-      $form.find('[name=create_category]').prop('checked', createdValue);
       $form.find('[name=category]').val(value);
       $form.submit();
     });
-    $select[0].selectize.open();
 
-    //
-    $static.hide();
-    $dynamic.show();
+    $this.addClass('changing');
+
+    $select[0].selectize.open();
   });
 })();

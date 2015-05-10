@@ -28,7 +28,6 @@
 	<form method="post" action="{% url 'transactions:categorise' %}">
 		{% csrf_token %}
 		<input type="text" name="transaction">
-		<input type="checkbox" name="create_category">
 		<input type="text" name="category">
 	</form>
 
